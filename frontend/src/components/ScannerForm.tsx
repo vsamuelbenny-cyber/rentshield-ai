@@ -2,13 +2,10 @@ import React, { useState, useRef } from 'react';
 import {
   Upload,
   X,
-  Image as ImageIcon,
   DollarSign,
   MapPin,
-  Building,
   Mail,
   Phone,
-  FileText,
   AlertCircle,
   Loader2,
   ScanEye
@@ -65,7 +62,7 @@ export const ScannerForm: React.FC<Props> = ({ onScanComplete, initialValues }) 
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        setErrorMessage("Image exceeds 5MB size limit.");
+        setErrorMessage("Image exceeds 5MB size limit. Please select a smaller photo.");
         return;
       }
       setImageFile(file);
@@ -83,6 +80,13 @@ export const ScannerForm: React.FC<Props> = ({ onScanComplete, initialValues }) 
     setImagePreview(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
+    }
+  };
+
+  const handleDropzoneKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      fileInputRef.current?.click();
     }
   };
 
@@ -157,315 +161,377 @@ export const ScannerForm: React.FC<Props> = ({ onScanComplete, initialValues }) 
   };
 
   return (
-    <form onSubmit={handleSubmit} className="p-6 rounded-2xl bg-cyber-surface border border-cyber-border space-y-6">
-      <div className="flex items-center justify-between border-b border-cyber-border pb-4">
-        <div>
-          <h2 className="text-lg font-bold text-white flex items-center space-x-2">
-            <ScanEye className="w-5 h-5 text-cyber-neonTeal" />
-            <span>Rental Listing Inspection Form</span>
-          </h2>
-          <p className="text-xs text-cyber-textMuted">
-            Analyze property details, advance payment requirements, and photo reuse signatures.
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={resetForm}
-          className="text-xs text-cyber-textMuted hover:text-white px-3 py-1 rounded bg-cyber-card border border-cyber-border"
-        >
-          Clear Form
-        </button>
-      </div>
-
-      {errorMessage && (
-        <div className="p-3.5 rounded-xl bg-red-950/70 border border-red-500/50 flex items-start space-x-2.5 text-xs text-red-200">
-          <AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
-          <span>{errorMessage}</span>
-        </div>
-      )}
-
-      {/* Row 1: Title */}
-      <div>
-        <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-          Listing Title <span className="text-cyber-neonTeal">*</span>
-        </label>
-        <input
-          type="text"
-          required
-          placeholder="e.g. Spacious 2BR/1BA Apartment in Downtown Historic District"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="w-full px-3.5 py-2.5 rounded-xl bg-cyber-card border border-cyber-border text-white placeholder-slate-500 text-sm focus:outline-none focus:border-cyber-neonTeal transition-colors"
-        />
-      </div>
-
-      {/* Row 2: Rent & Deposit */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-            Monthly Rent (USD $) <span className="text-cyber-neonTeal">*</span>
-          </label>
-          <div className="relative">
-            <DollarSign className="w-4 h-4 text-cyber-textMuted absolute left-3 top-3" />
-            <input
-              type="number"
-              step="any"
-              min="1"
-              required
-              placeholder="e.g. 1850"
-              value={monthlyRent}
-              onChange={(e) => setMonthlyRent(e.target.value)}
-              className="w-full pl-9 pr-3.5 py-2.5 rounded-xl bg-cyber-card border border-cyber-border text-white placeholder-slate-500 text-sm focus:outline-none focus:border-cyber-neonTeal transition-colors font-mono"
-            />
+    <section aria-labelledby="scanner-form-heading">
+      <form
+        onSubmit={handleSubmit}
+        noValidate={false}
+        className="p-6 rounded-2xl bg-cyber-surface border border-cyber-border space-y-6"
+      >
+        <div className="flex items-center justify-between border-b border-cyber-border pb-4">
+          <div>
+            <h2 id="scanner-form-heading" className="text-lg font-bold text-white flex items-center space-x-2">
+              <ScanEye className="w-5 h-5 text-cyber-neonTeal" aria-hidden="true" />
+              <span>Rental Listing Inspection Form</span>
+            </h2>
+            <p className="text-xs text-slate-300">
+              Analyze property details, advance payment requirements, and photo reuse signatures.
+            </p>
           </div>
-        </div>
-
-        <div>
-          <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-            Security Deposit (USD $)
-          </label>
-          <div className="relative">
-            <DollarSign className="w-4 h-4 text-cyber-textMuted absolute left-3 top-3" />
-            <input
-              type="number"
-              step="any"
-              min="0"
-              placeholder="e.g. 1850"
-              value={securityDeposit}
-              onChange={(e) => setSecurityDeposit(e.target.value)}
-              className="w-full pl-9 pr-3.5 py-2.5 rounded-xl bg-cyber-card border border-cyber-border text-white placeholder-slate-500 text-sm focus:outline-none focus:border-cyber-neonTeal transition-colors font-mono"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Row 3: City, State, Address */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div>
-          <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-            City <span className="text-cyber-neonTeal">*</span>
-          </label>
-          <div className="relative">
-            <MapPin className="w-4 h-4 text-cyber-textMuted absolute left-3 top-3" />
-            <input
-              type="text"
-              required
-              placeholder="e.g. New York, Miami, Chicago"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-              className="w-full pl-9 pr-3.5 py-2.5 rounded-xl bg-cyber-card border border-cyber-border text-white placeholder-slate-500 text-sm focus:outline-none focus:border-cyber-neonTeal transition-colors"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-            State / Region
-          </label>
-          <input
-            type="text"
-            placeholder="e.g. NY, FL, IL"
-            value={state}
-            onChange={(e) => setState(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-xl bg-cyber-card border border-cyber-border text-white placeholder-slate-500 text-sm focus:outline-none focus:border-cyber-neonTeal transition-colors"
-          />
-        </div>
-
-        <div>
-          <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-            Property Address
-          </label>
-          <input
-            type="text"
-            placeholder="e.g. 45 Wall St #14B"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-xl bg-cyber-card border border-cyber-border text-white placeholder-slate-500 text-sm focus:outline-none focus:border-cyber-neonTeal transition-colors"
-          />
-        </div>
-      </div>
-
-      {/* Row 4: Bedrooms, Bathrooms, SqFt */}
-      <div className="grid grid-cols-3 gap-4">
-        <div>
-          <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-            Bedrooms
-          </label>
-          <select
-            value={bedrooms}
-            onChange={(e) => setBedrooms(e.target.value)}
-            className="w-full px-3 py-2.5 rounded-xl bg-cyber-card border border-cyber-border text-white text-sm focus:outline-none focus:border-cyber-neonTeal"
+          <button
+            type="button"
+            onClick={resetForm}
+            aria-label="Clear all form fields and reset"
+            className="text-xs text-slate-300 hover:text-white px-3.5 py-2 rounded-lg bg-cyber-card border border-cyber-border min-h-[44px] transition-colors focus-visible:ring-2 focus-visible:ring-cyber-neonTeal focus-visible:outline-none"
           >
-            <option value="0">Studio (0)</option>
-            <option value="1">1 Bedroom</option>
-            <option value="2">2 Bedrooms</option>
-            <option value="3">3 Bedrooms</option>
-            <option value="4">4+ Bedrooms</option>
-          </select>
+            Clear Form
+          </button>
         </div>
 
-        <div>
-          <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-            Bathrooms
-          </label>
-          <select
-            value={bathrooms}
-            onChange={(e) => setBathrooms(e.target.value)}
-            className="w-full px-3 py-2.5 rounded-xl bg-cyber-card border border-cyber-border text-white text-sm focus:outline-none focus:border-cyber-neonTeal"
-          >
-            <option value="1">1 Bath</option>
-            <option value="1.5">1.5 Baths</option>
-            <option value="2">2 Baths</option>
-            <option value="2.5">2.5 Baths</option>
-            <option value="3">3+ Baths</option>
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-            Square Feet
-          </label>
-          <input
-            type="number"
-            placeholder="e.g. 950"
-            value={squareFeet}
-            onChange={(e) => setSquareFeet(e.target.value)}
-            className="w-full px-3 py-2.5 rounded-xl bg-cyber-card border border-cyber-border text-white placeholder-slate-500 text-sm focus:outline-none focus:border-cyber-neonTeal"
-          />
-        </div>
-      </div>
-
-      {/* Row 5: Listing Description */}
-      <div>
-        <div className="flex justify-between items-center mb-1.5">
-          <label className="block text-xs font-semibold text-slate-300">
-            Full Listing Description <span className="text-cyber-neonTeal">*</span>
-          </label>
-          <span className="text-[11px] text-cyber-textMuted font-mono">
-            {description.length} chars
-          </span>
-        </div>
-        <textarea
-          required
-          rows={5}
-          placeholder="Paste the full rental listing description or email correspondence here (including any payment terms, landlord excuses, or lease rules)..."
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="w-full px-3.5 py-2.5 rounded-xl bg-cyber-card border border-cyber-border text-white placeholder-slate-500 text-sm focus:outline-none focus:border-cyber-neonTeal transition-colors leading-relaxed"
-        />
-      </div>
-
-      {/* Row 6: Contact Information */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-            Contact Email (Optional)
-          </label>
-          <div className="relative">
-            <Mail className="w-4 h-4 text-cyber-textMuted absolute left-3 top-3" />
-            <input
-              type="text"
-              placeholder="e.g. manager@domain.com"
-              value={contactEmail}
-              onChange={(e) => setContactEmail(e.target.value)}
-              className="w-full pl-9 pr-3.5 py-2.5 rounded-xl bg-cyber-card border border-cyber-border text-white placeholder-slate-500 text-sm focus:outline-none focus:border-cyber-neonTeal"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-            Contact Phone / App (Optional)
-          </label>
-          <div className="relative">
-            <Phone className="w-4 h-4 text-cyber-textMuted absolute left-3 top-3" />
-            <input
-              type="text"
-              placeholder="e.g. +1 555-0199 or WhatsApp"
-              value={contactPhone}
-              onChange={(e) => setContactPhone(e.target.value)}
-              className="w-full pl-9 pr-3.5 py-2.5 rounded-xl bg-cyber-card border border-cyber-border text-white placeholder-slate-500 text-sm focus:outline-none focus:border-cyber-neonTeal"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Row 7: Photo Upload / Duplicate Detection Dropzone */}
-      <div>
-        <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-          Listing Photo (Local Perceptual Hash Verification)
-        </label>
-        
-        {imagePreview ? (
-          <div className="relative p-3 rounded-xl bg-cyber-card border border-cyber-neonTeal/40 flex items-center space-x-4">
-            <img
-              src={imagePreview}
-              alt="Listing preview"
-              className="w-20 h-20 object-cover rounded-lg border border-cyber-border"
-            />
-            <div className="flex-1 min-w-0">
-              <span className="text-xs font-semibold text-white truncate block">
-                {imageFile?.name}
-              </span>
-              <span className="text-[11px] text-cyber-textMuted">
-                {((imageFile?.size || 0) / 1024).toFixed(1)} KB • Ready for pHash fingerprinting
-              </span>
-              <span className="block text-[11px] text-cyber-neonTeal mt-1">
-                ✓ Image validated & sanitized locally
-              </span>
-            </div>
-            <button
-              type="button"
-              onClick={removeImage}
-              className="p-1.5 rounded-lg bg-cyber-surface hover:bg-red-950 text-slate-400 hover:text-red-400 border border-cyber-border"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        ) : (
+        {/* Accessible Error Alert Banner */}
+        {errorMessage && (
           <div
-            onClick={() => fileInputRef.current?.click()}
-            className="p-6 rounded-xl border-2 border-dashed border-cyber-border hover:border-cyber-neonTeal/60 bg-cyber-card/40 hover:bg-cyber-card transition-all cursor-pointer text-center group"
+            id="form-error-message"
+            role="alert"
+            aria-live="assertive"
+            className="p-3.5 rounded-xl bg-red-950/80 border border-red-500/70 flex items-start space-x-2.5 text-xs text-red-200"
           >
-            <Upload className="w-7 h-7 mx-auto mb-2 text-cyber-textMuted group-hover:text-cyber-neonTeal transition-colors" />
-            <p className="text-xs font-medium text-slate-300">
-              Click or drag listing photo to inspect for duplicate reuse
-            </p>
-            <p className="text-[11px] text-cyber-textMuted mt-1">
-              Supports JPG, PNG, WEBP up to 5MB. Photo is evaluated strictly via client-safe perceptual hashing.
-            </p>
+            <AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" aria-hidden="true" />
+            <span className="font-medium">{errorMessage}</span>
           </div>
         )}
 
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/jpeg,image/png,image/webp"
-          className="hidden"
-          onChange={handleImageChange}
-        />
-      </div>
+        {/* Row 1: Title */}
+        <div>
+          <label htmlFor="listing-title" className="block text-xs font-semibold text-slate-200 mb-1.5">
+            Listing Title <span className="text-cyber-neonTeal" aria-hidden="true">*</span>
+            <span className="sr-only"> (required)</span>
+          </label>
+          <input
+            id="listing-title"
+            name="title"
+            type="text"
+            required
+            aria-required="true"
+            aria-invalid={errorMessage?.includes("title") ? true : undefined}
+            placeholder="e.g. Spacious 2BR/1BA Apartment in Downtown Historic District"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="w-full px-3.5 py-2.5 rounded-xl bg-cyber-card border border-cyber-border text-white placeholder-slate-400 text-sm focus:outline-none focus:border-cyber-neonTeal focus-visible:ring-2 focus-visible:ring-cyber-neonTeal transition-colors"
+          />
+        </div>
 
-      {/* Submit Button */}
-      <div className="pt-2">
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 hover:from-cyan-400 hover:via-teal-400 hover:to-emerald-400 text-slate-950 font-bold text-sm tracking-wide shadow-[0_0_20px_rgba(0,245,212,0.3)] hover:shadow-[0_0_25px_rgba(0,245,212,0.5)] transition-all flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isSubmitting ? (
-            <>
-              <Loader2 className="w-5 h-5 animate-spin" />
-              <span>Analyzing Listing Vectors & Calculating Risk...</span>
-            </>
+        {/* Row 2: Rent & Deposit */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="monthly-rent" className="block text-xs font-semibold text-slate-200 mb-1.5">
+              Monthly Rent (USD $) <span className="text-cyber-neonTeal" aria-hidden="true">*</span>
+              <span className="sr-only"> (required)</span>
+            </label>
+            <div className="relative">
+              <DollarSign className="w-4 h-4 text-slate-400 absolute left-3 top-3.5" aria-hidden="true" />
+              <input
+                id="monthly-rent"
+                name="monthly_rent"
+                type="number"
+                step="any"
+                min="1"
+                required
+                aria-required="true"
+                aria-invalid={errorMessage?.includes("rent") ? true : undefined}
+                placeholder="e.g. 1850"
+                value={monthlyRent}
+                onChange={(e) => setMonthlyRent(e.target.value)}
+                className="w-full pl-9 pr-3.5 py-2.5 rounded-xl bg-cyber-card border border-cyber-border text-white placeholder-slate-400 text-sm focus:outline-none focus:border-cyber-neonTeal focus-visible:ring-2 focus-visible:ring-cyber-neonTeal transition-colors font-mono"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor="security-deposit" className="block text-xs font-semibold text-slate-200 mb-1.5">
+              Security Deposit (USD $)
+            </label>
+            <div className="relative">
+              <DollarSign className="w-4 h-4 text-slate-400 absolute left-3 top-3.5" aria-hidden="true" />
+              <input
+                id="security-deposit"
+                name="security_deposit"
+                type="number"
+                step="any"
+                min="0"
+                placeholder="e.g. 1850"
+                value={securityDeposit}
+                onChange={(e) => setSecurityDeposit(e.target.value)}
+                className="w-full pl-9 pr-3.5 py-2.5 rounded-xl bg-cyber-card border border-cyber-border text-white placeholder-slate-400 text-sm focus:outline-none focus:border-cyber-neonTeal focus-visible:ring-2 focus-visible:ring-cyber-neonTeal transition-colors font-mono"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Row 3: City, State, Address */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label htmlFor="property-city" className="block text-xs font-semibold text-slate-200 mb-1.5">
+              City <span className="text-cyber-neonTeal" aria-hidden="true">*</span>
+              <span className="sr-only"> (required)</span>
+            </label>
+            <div className="relative">
+              <MapPin className="w-4 h-4 text-slate-400 absolute left-3 top-3.5" aria-hidden="true" />
+              <input
+                id="property-city"
+                name="city"
+                type="text"
+                required
+                aria-required="true"
+                aria-invalid={errorMessage?.includes("city") ? true : undefined}
+                placeholder="e.g. New York, Miami, Chicago"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                className="w-full pl-9 pr-3.5 py-2.5 rounded-xl bg-cyber-card border border-cyber-border text-white placeholder-slate-400 text-sm focus:outline-none focus:border-cyber-neonTeal focus-visible:ring-2 focus-visible:ring-cyber-neonTeal transition-colors"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor="property-state" className="block text-xs font-semibold text-slate-200 mb-1.5">
+              State / Region
+            </label>
+            <input
+              id="property-state"
+              name="state"
+              type="text"
+              placeholder="e.g. NY, FL, IL"
+              value={state}
+              onChange={(e) => setState(e.target.value)}
+              className="w-full px-3.5 py-2.5 rounded-xl bg-cyber-card border border-cyber-border text-white placeholder-slate-400 text-sm focus:outline-none focus:border-cyber-neonTeal focus-visible:ring-2 focus-visible:ring-cyber-neonTeal transition-colors"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="property-address" className="block text-xs font-semibold text-slate-200 mb-1.5">
+              Property Address
+            </label>
+            <input
+              id="property-address"
+              name="address"
+              type="text"
+              placeholder="e.g. 45 Wall St #14B"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              className="w-full px-3.5 py-2.5 rounded-xl bg-cyber-card border border-cyber-border text-white placeholder-slate-400 text-sm focus:outline-none focus:border-cyber-neonTeal focus-visible:ring-2 focus-visible:ring-cyber-neonTeal transition-colors"
+            />
+          </div>
+        </div>
+
+        {/* Row 4: Bedrooms, Bathrooms, SqFt */}
+        <div className="grid grid-cols-3 gap-4">
+          <div>
+            <label htmlFor="property-bedrooms" className="block text-xs font-semibold text-slate-200 mb-1.5">
+              Bedrooms
+            </label>
+            <select
+              id="property-bedrooms"
+              name="bedrooms"
+              value={bedrooms}
+              onChange={(e) => setBedrooms(e.target.value)}
+              className="w-full px-3 py-2.5 rounded-xl bg-cyber-card border border-cyber-border text-white text-sm focus:outline-none focus:border-cyber-neonTeal focus-visible:ring-2 focus-visible:ring-cyber-neonTeal"
+            >
+              <option value="0">Studio (0)</option>
+              <option value="1">1 Bedroom</option>
+              <option value="2">2 Bedrooms</option>
+              <option value="3">3 Bedrooms</option>
+              <option value="4">4+ Bedrooms</option>
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="property-bathrooms" className="block text-xs font-semibold text-slate-200 mb-1.5">
+              Bathrooms
+            </label>
+            <select
+              id="property-bathrooms"
+              name="bathrooms"
+              value={bathrooms}
+              onChange={(e) => setBathrooms(e.target.value)}
+              className="w-full px-3 py-2.5 rounded-xl bg-cyber-card border border-cyber-border text-white text-sm focus:outline-none focus:border-cyber-neonTeal focus-visible:ring-2 focus-visible:ring-cyber-neonTeal"
+            >
+              <option value="1">1 Bath</option>
+              <option value="1.5">1.5 Baths</option>
+              <option value="2">2 Baths</option>
+              <option value="2.5">2.5 Baths</option>
+              <option value="3">3+ Baths</option>
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="property-sqft" className="block text-xs font-semibold text-slate-200 mb-1.5">
+              Square Feet
+            </label>
+            <input
+              id="property-sqft"
+              name="square_feet"
+              type="number"
+              placeholder="e.g. 950"
+              value={squareFeet}
+              onChange={(e) => setSquareFeet(e.target.value)}
+              className="w-full px-3 py-2.5 rounded-xl bg-cyber-card border border-cyber-border text-white placeholder-slate-400 text-sm focus:outline-none focus:border-cyber-neonTeal focus-visible:ring-2 focus-visible:ring-cyber-neonTeal"
+            />
+          </div>
+        </div>
+
+        {/* Row 5: Listing Description */}
+        <div>
+          <div className="flex justify-between items-center mb-1.5">
+            <label htmlFor="listing-description" className="block text-xs font-semibold text-slate-200">
+              Full Listing Description <span className="text-cyber-neonTeal" aria-hidden="true">*</span>
+              <span className="sr-only"> (required)</span>
+            </label>
+            <span
+              id="desc-counter"
+              className="text-[11px] text-slate-300 font-mono"
+              aria-live="polite"
+              aria-atomic="true"
+            >
+              {description.length} characters
+            </span>
+          </div>
+          <textarea
+            id="listing-description"
+            name="description"
+            required
+            aria-required="true"
+            aria-describedby="desc-counter"
+            aria-invalid={errorMessage?.includes("description") ? true : undefined}
+            rows={5}
+            placeholder="Paste the full rental listing description or email correspondence here (including any payment terms, landlord excuses, or lease rules)..."
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="w-full px-3.5 py-2.5 rounded-xl bg-cyber-card border border-cyber-border text-white placeholder-slate-400 text-sm focus:outline-none focus:border-cyber-neonTeal focus-visible:ring-2 focus-visible:ring-cyber-neonTeal transition-colors leading-relaxed"
+          />
+        </div>
+
+        {/* Row 6: Contact Information */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="contact-email" className="block text-xs font-semibold text-slate-200 mb-1.5">
+              Contact Email (Optional)
+            </label>
+            <div className="relative">
+              <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-3.5" aria-hidden="true" />
+              <input
+                id="contact-email"
+                name="contact_email"
+                type="email"
+                placeholder="e.g. manager@domain.com"
+                value={contactEmail}
+                onChange={(e) => setContactEmail(e.target.value)}
+                className="w-full pl-9 pr-3.5 py-2.5 rounded-xl bg-cyber-card border border-cyber-border text-white placeholder-slate-400 text-sm focus:outline-none focus:border-cyber-neonTeal focus-visible:ring-2 focus-visible:ring-cyber-neonTeal"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor="contact-phone" className="block text-xs font-semibold text-slate-200 mb-1.5">
+              Contact Phone / App (Optional)
+            </label>
+            <div className="relative">
+              <Phone className="w-4 h-4 text-slate-400 absolute left-3 top-3.5" aria-hidden="true" />
+              <input
+                id="contact-phone"
+                name="contact_phone"
+                type="text"
+                placeholder="e.g. +1 555-0199 or WhatsApp"
+                value={contactPhone}
+                onChange={(e) => setContactPhone(e.target.value)}
+                className="w-full pl-9 pr-3.5 py-2.5 rounded-xl bg-cyber-card border border-cyber-border text-white placeholder-slate-400 text-sm focus:outline-none focus:border-cyber-neonTeal focus-visible:ring-2 focus-visible:ring-cyber-neonTeal"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Row 7: Photo Upload / Duplicate Detection Dropzone (Keyboard Accessible) */}
+        <div>
+          <label htmlFor="listing-photo" className="block text-xs font-semibold text-slate-200 mb-1.5">
+            Listing Photo (Local Perceptual Hash Verification)
+          </label>
+          
+          {imagePreview ? (
+            <div className="relative p-3 rounded-xl bg-cyber-card border border-cyber-neonTeal/40 flex items-center space-x-4">
+              <img
+                src={imagePreview}
+                alt={`Preview of uploaded listing photo: ${imageFile?.name || 'Uploaded property photo'}`}
+                className="w-20 h-20 object-cover rounded-lg border border-cyber-border"
+              />
+              <div className="flex-1 min-w-0">
+                <span className="text-xs font-semibold text-white truncate block">
+                  {imageFile?.name}
+                </span>
+                <span className="text-[11px] text-slate-300 block">
+                  {((imageFile?.size || 0) / 1024).toFixed(1)} KB • Ready for pHash fingerprinting
+                </span>
+                <span className="block text-[11px] text-cyber-neonTeal mt-1">
+                  ✓ Image validated &amp; sanitized locally
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={removeImage}
+                aria-label={`Remove photo ${imageFile?.name || ''}`}
+                className="p-2.5 rounded-lg bg-cyber-surface hover:bg-red-950 text-slate-300 hover:text-red-300 border border-cyber-border min-h-[44px] min-w-[44px] flex items-center justify-center focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none transition-colors"
+              >
+                <X className="w-5 h-5" aria-hidden="true" />
+              </button>
+            </div>
           ) : (
-            <>
-              <ScanEye className="w-5 h-5" />
-              <span>Run RentShield Multi-Vector Risk Scan</span>
-            </>
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              onKeyDown={handleDropzoneKeyDown}
+              aria-label="Upload listing photo. Accepts JPG, PNG, WEBP up to 5MB."
+              className="w-full p-6 rounded-xl border-2 border-dashed border-cyber-border hover:border-cyber-neonTeal/70 focus:border-cyber-neonTeal bg-cyber-card/40 hover:bg-cyber-card transition-all cursor-pointer text-center group focus-visible:ring-2 focus-visible:ring-cyber-neonTeal focus-visible:outline-none min-h-[96px]"
+            >
+              <Upload className="w-7 h-7 mx-auto mb-2 text-slate-400 group-hover:text-cyber-neonTeal transition-colors" aria-hidden="true" />
+              <p className="text-xs font-medium text-slate-200">
+                Click to browse or drag listing photo to inspect for duplicate reuse
+              </p>
+              <p className="text-[11px] text-slate-300 mt-1">
+                Supports JPG, PNG, WEBP up to 5MB. Evaluated strictly via client-safe perceptual hashing.
+              </p>
+            </button>
           )}
-        </button>
-      </div>
-    </form>
+
+          <input
+            id="listing-photo"
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            className="sr-only"
+            onChange={handleImageChange}
+            aria-label="Upload listing photo file"
+          />
+        </div>
+
+        {/* Submit Button with Live Announcement */}
+        <div className="pt-2">
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            aria-busy={isSubmitting}
+            className="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 hover:from-cyan-400 hover:via-teal-400 hover:to-emerald-400 text-slate-950 font-bold text-sm tracking-wide shadow-[0_0_20px_rgba(0,245,212,0.3)] hover:shadow-[0_0_25px_rgba(0,245,212,0.5)] transition-all flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed min-h-[48px] focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" aria-hidden="true" />
+                <span aria-live="polite">Analyzing Listing Vectors &amp; Calculating Risk...</span>
+              </>
+            ) : (
+              <>
+                <ScanEye className="w-5 h-5" aria-hidden="true" />
+                <span>Run RentShield Multi-Vector Risk Scan</span>
+              </>
+            )}
+          </button>
+        </div>
+      </form>
+    </section>
   );
 };
