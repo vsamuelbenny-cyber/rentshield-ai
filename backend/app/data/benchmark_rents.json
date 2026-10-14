@@ -1,0 +1,92 @@
+{
+  "markets": {
+    "new york": {
+      "display_name": "New York, NY",
+      "currency": "USD",
+      "bedrooms": {
+        "0": { "median": 2800, "std": 450, "min_expected": 1900, "max_expected": 4200 },
+        "1": { "median": 3500, "std": 600, "min_expected": 2300, "max_expected": 5500 },
+        "2": { "median": 4600, "std": 750, "min_expected": 3100, "max_expected": 7200 },
+        "3": { "median": 6000, "std": 950, "min_expected": 4000, "max_expected": 9500 },
+        "4": { "median": 7800, "std": 1200, "min_expected": 5200, "max_expected": 12500 }
+      }
+    },
+    "los angeles": {
+      "display_name": "Los Angeles, CA",
+      "currency": "USD",
+      "bedrooms": {
+        "0": { "median": 1900, "std": 300, "min_expected": 1400, "max_expected": 2900 },
+        "1": { "median": 2400, "std": 400, "min_expected": 1700, "max_expected": 3600 },
+        "2": { "median": 3200, "std": 550, "min_expected": 2200, "max_expected": 4900 },
+        "3": { "median": 4200, "std": 700, "min_expected": 2900, "max_expected": 6400 },
+        "4": { "median": 5500, "std": 900, "min_expected": 3800, "max_expected": 8500 }
+      }
+    },
+    "chicago": {
+      "display_name": "Chicago, IL",
+      "currency": "USD",
+      "bedrooms": {
+        "0": { "median": 1500, "std": 250, "min_expected": 1050, "max_expected": 2300 },
+        "1": { "median": 1850, "std": 320, "min_expected": 1300, "max_expected": 2800 },
+        "2": { "median": 2400, "std": 420, "min_expected": 1650, "max_expected": 3700 },
+        "3": { "median": 3100, "std": 550, "min_expected": 2100, "max_expected": 4800 },
+        "4": { "median": 3900, "std": 700, "min_expected": 2700, "max_expected": 6000 }
+      }
+    },
+    "austin": {
+      "display_name": "Austin, TX",
+      "currency": "USD",
+      "bedrooms": {
+        "0": { "median": 1400, "std": 220, "min_expected": 950, "max_expected": 2100 },
+        "1": { "median": 1650, "std": 280, "min_expected": 1150, "max_expected": 2500 },
+        "2": { "median": 2150, "std": 380, "min_expected": 1500, "max_expected": 3300 },
+        "3": { "median": 2800, "std": 480, "min_expected": 1950, "max_expected": 4300 },
+        "4": { "median": 3500, "std": 600, "min_expected": 2400, "max_expected": 5400 }
+      }
+    },
+    "seattle": {
+      "display_name": "Seattle, WA",
+      "currency": "USD",
+      "bedrooms": {
+        "0": { "median": 1650, "std": 260, "min_expected": 1200, "max_expected": 2450 },
+        "1": { "median": 2100, "std": 350, "min_expected": 1500, "max_expected": 3200 },
+        "2": { "median": 2850, "std": 480, "min_expected": 2000, "max_expected": 4300 },
+        "3": { "median": 3700, "std": 620, "min_expected": 2600, "max_expected": 5600 },
+        "4": { "median": 4600, "std": 800, "min_expected": 3200, "max_expected": 7000 }
+      }
+    },
+    "miami": {
+      "display_name": "Miami, FL",
+      "currency": "USD",
+      "bedrooms": {
+        "0": { "median": 1950, "std": 320, "min_expected": 1400, "max_expected": 2950 },
+        "1": { "median": 2500, "std": 420, "min_expected": 1800, "max_expected": 3800 },
+        "2": { "median": 3350, "std": 580, "min_expected": 2350, "max_expected": 5100 },
+        "3": { "median": 4500, "std": 780, "min_expected": 3100, "max_expected": 6900 },
+        "4": { "median": 5800, "std": 950, "min_expected": 4000, "max_expected": 9000 }
+      }
+    },
+    "san francisco": {
+      "display_name": "San Francisco, CA",
+      "currency": "USD",
+      "bedrooms": {
+        "0": { "median": 2200, "std": 350, "min_expected": 1600, "max_expected": 3300 },
+        "1": { "median": 3000, "std": 500, "min_expected": 2100, "max_expected": 4600 },
+        "2": { "median": 4100, "std": 650, "min_expected": 2900, "max_expected": 6300 },
+        "3": { "median": 5400, "std": 850, "min_expected": 3800, "max_expected": 8300 },
+        "4": { "median": 6900, "std": 1100, "min_expected": 4800, "max_expected": 10500 }
+      }
+    },
+    "default_national": {
+      "display_name": "National US Benchmark (Fallback)",
+      "currency": "USD",
+      "bedrooms": {
+        "0": { "median": 1300, "std": 250, "min_expected": 850, "max_expected": 2100 },
+        "1": { "median": 1550, "std": 300, "min_expected": 1000, "max_expected": 2500 },
+        "2": { "median": 1950, "std": 400, "min_expected": 1300, "max_expected": 3100 },
+        "3": { "median": 2450, "std": 500, "min_expected": 1650, "max_expected": 3900 },
+        "4": { "median": 3100, "std": 650, "min_expected": 2100, "max_expected": 4900 }
+      }
+    }
+  }
+}
